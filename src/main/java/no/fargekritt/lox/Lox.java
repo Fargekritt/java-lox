@@ -18,7 +18,7 @@ public class Lox {
         if (args.length > 1) {
             System.out.println("Usage jlox [script]");
             System.exit(64);
-        } else if (args.length == 1){
+        } else if (args.length == 1) {
             runFile(args[0]);
         } else {
             runPrompt();
@@ -34,30 +34,30 @@ public class Lox {
     private static void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
-        while(true){
+        while (true) {
             System.out.println("> ");
             String line = reader.readLine();
-            if(line == null) break;
+            if (line == null) break;
             run(line);
             hadError = false;
         }
     }
 
-    private static void run(String source){
+    private static void run(String source) {
         // Ikke Java scanner men vår "lexer"
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
-        for (Token token : tokens){
+        for (Token token : tokens) {
             System.out.println(token);
         }
     }
 
-    static void error(int line, String message){
+    static void error(int line, String message) {
         report(line, "", message);
     }
 
-    public static void report(int line, String where, String message){
+    public static void report(int line, String where, String message) {
         System.err.println("[Line " + line + " ] Error " + where + ": " + message);
         hadError = true;
     }

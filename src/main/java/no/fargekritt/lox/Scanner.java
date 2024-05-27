@@ -135,6 +135,7 @@ public class Scanner {
 
     private void multiComment(){
         while (!isAtEnd() && peek() != '*' &&  peekNext() != '/') {
+            if(peek() == '\n') line++;
             advance();
         }
 
