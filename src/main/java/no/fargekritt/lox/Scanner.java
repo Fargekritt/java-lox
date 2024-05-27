@@ -72,7 +72,9 @@ public class Scanner {
                 if (match('/')) {
                     // Comments the whole line
                     while (peek() != '\n' && !isAtEnd()) advance();
-                } else {
+                } else if (match('*')){
+                    multiComment();
+                }else {
                     addToken(SLASH);
                 }
             }
@@ -129,6 +131,15 @@ public class Scanner {
         // +1 and -1 to avoid the ""
         String value = source.substring(start + 1, current - 1);
         addToken(STRING, value);
+    }
+
+    private void multiComment(){
+        while (!isAtEnd() && peek() != '*' &&  peekNext() != '/') {
+            advance();
+        }
+
+        advance();
+        advance();
     }
 
     // TODO:

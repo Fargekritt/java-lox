@@ -103,3 +103,12 @@ This project is the java part of the book.
 * Many scripting languages are mix of both interpreted and compiled.
   * CPython, Lua is a couple of languages like this
 
+## Chapter 4
+
+### Challenges
+1. Python is not a regular language, since you cant use a regex to parse the grammer. python is indent sensetive and
+you need to know level of indention which you cant do with regex.
+2. TODO
+3. Python needs to know the white space to know what scope its in.
+Comments might be used to create better debugging, can be used to create documention (javaDoc)
+and if you want to source-to-source you might want to keep comments in.
