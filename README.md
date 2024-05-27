@@ -112,3 +112,60 @@ you need to know level of indention which you cant do with regex.
 3. Python needs to know the white space to know what scope its in.
 Comments might be used to create better debugging, can be used to create documention (javaDoc)
 and if you want to source-to-source you might want to keep comments in.
+
+## Chapter 5
+
+
+### Context-free grammars
+
+Context-free grammars is the next heaviest hammer in the formalr grammars toolbox
+![img.png](img.png)
+Formal grammars job is to say which strings are valid
+"eggs are tasty for breakfast" would be valid, but not "tasty breakfast for are eggs"
+
+#### Rules for grammars
+
+##### derivations
+* Generate strings from the rules
+* Rules are called prodcutions since they produce a string
+* each prodcution in a context free grammar has a head and a body
+* Head its name
+* Body is what it generates (List of symbols)
+  * Terminal - Terminal as in end, (tokens from scanner like (if or 1234))
+  * Nonterminal - Is a reference to another rule
+  * lexemes are all caps
+* Rules can have the same name
+
+##### BNF
+A way to write down the rules of a language
+* Format:
+  * Name -> then a sequence of symbols ending with ;
+  * terminals are surrounded with "" nonterminals are lowercase words
+![img_1.png](img_1.png)
+
+![img_2.png](img_2.png)
+
+To make the syntax easier to write we use | as or so we can write
+* bread → "toast" | "biscuits" | "English muffin" ;
+* we can also use () to group them protein → ( "scrambled" | "poached" | "fried" ) "eggs" ;
+* and normal regex recursion crispiness → "really" "really"* ;
+* ? to make it optional zore or 1 time breakfast → protein ( "with" breakfast "on the side" )? ;
+With all the syntax sugar
+* ![img_3.png](img_3.png)
+
+#### A grammar for Lox  expressions
+
+* Literals: Numbers, strings, Booleans and nil.
+* Unary expressions: prefix ! to perform a logical bot, and - to negate a number
+* Binary expressions: infix arithmetic (+, -, *, /) and logical operators (==, !=, <, <=, >, >=)
+* Parentheses: A pair of ( and ) wrapped around an expression
+
+
+```BNF
+   expression   -> literal | unary | binary | grouping ;
+   literal      -> NUMBER | STRING | "true" | "false" | "nil" ;
+   grouping     -> "(" expression ")" ;
+   unary        -> ( "-" | "!" ) expression ;
+   binary       -> expression operator expression
+   operator     -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+" | "-" | "*" | "/" ;
+```
