@@ -60,17 +60,40 @@ public class Scanner {
             }
             case '\n' -> line++;
             case '"' -> string();
-            default -> Lox.error(line, "Unexpected character.");
+            default -> {
+                if (isDigit(c)) {
+                    number();
+                } else {
+                    Lox.error(line, "Unexpected character.");
+                }
+            }
         }
     }
 
-    private void string(){
-        while (peek() != '"' && !isAtEnd()){
-            if(peek() == '\n') line++;
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private void number() {
+        while (isDigit(peek())) advance();
+
+        if (peek() == '.' && isDigit(peekNext())) {
+            advance();
+
+            while (isDigit(peek())) advance();
+        }
+
+        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+
+    }
+
+    private void string() {
+        while (peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n') line++;
             advance();
         }
 
-        if (isAtEnd()){
+        if (isAtEnd()) {
             Lox.error(line, "Unterminated string");
         }
 
@@ -78,7 +101,7 @@ public class Scanner {
         advance();
 
         // +1 and -1 to avoid the ""
-        String value = source.substring(start+1, current-1);
+        String value = source.substring(start + 1, current - 1);
         addToken(STRING, value);
     }
 
@@ -97,6 +120,11 @@ public class Scanner {
     private char peek() {
         if (isAtEnd()) return '\0';
         return source.charAt(current);
+    }
+
+    private char peekNext() {
+        if (current + 1 >= source.length()) return '\0';
+        return source.charAt(current + 1);
     }
 
     private boolean isAtEnd() {
