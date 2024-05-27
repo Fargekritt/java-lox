@@ -59,10 +59,31 @@ public class Scanner {
                 // Skip white space.
             }
             case '\n' -> line++;
+            case '"' -> string();
             default -> Lox.error(line, "Unexpected character.");
         }
     }
 
+    private void string(){
+        while (peek() != '"' && !isAtEnd()){
+            if(peek() == '\n') line++;
+            advance();
+        }
+
+        if (isAtEnd()){
+            Lox.error(line, "Unterminated string");
+        }
+
+        // the closing "
+        advance();
+
+        // +1 and -1 to avoid the ""
+        String value = source.substring(start+1, current-1);
+        addToken(STRING, value);
+    }
+
+    // TODO:
+    //  unescape \n \t etc
     // Checks if the character is what we expect, consumes if it does.
     private boolean match(char expected) {
         if (isAtEnd()) return false;
