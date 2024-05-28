@@ -8,7 +8,8 @@ abstract class Expr {
         R visitGroupingExpr(Grouping expr);
         R visitLiteralExpr(Literal expr);
         R visitUnaryExpr(Unary expr);
-}
+    }
+
     static class Binary extends Expr {
         final Expr left;
         final Token operator;
