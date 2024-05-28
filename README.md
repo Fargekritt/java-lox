@@ -4,6 +4,15 @@ http://www.craftinginterpreters.com
 
 This project is the java part of the book.
 
+```BNF
+   expression   -> literal | unary | binary | grouping ;
+   literal      -> NUMBER | STRING | "true" | "false" | "nil" ;
+   grouping     -> "(" expression ")" ;
+   unary        -> ( "-" | "!" ) expression ;
+   binary       -> expression operator expression
+   operator     -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+" | "-" | "*" | "/" ;
+```
+
 ## Chapter 2 - A map of the territory
 
 ---
