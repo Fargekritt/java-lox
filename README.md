@@ -13,6 +13,17 @@ This project is the java part of the book.
    operator     -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+" | "-" | "*" | "/" ;
 ```
 
+Lower = higher precedence
+```BNF
+  expression    -> equality
+  equality      -> comparison ( ( "!=" | "==" ) comparison )* ;
+  comparison    -> term ( ( ">" | "<" | ">=" | "<=" ) term )* ;
+  term          -> factor ( ( "-" | "+" ) factor )* ;
+  factor        -> unary ( ( "/" | "*" ) unary )* ;
+  unary         -> ( "!" | "-" ) unary | primary ;
+  primary       -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ; 
+```
+
 ## Chapter 2 - A map of the territory
 
 ---
@@ -249,3 +260,12 @@ expr -> NUMBER
   expr          -> expr IDENTIFIER
   expr          -> expr NUMBER 
 ```
+
+### Chapter 6
+
+#### Ambiguity and the Parsing Game
+
+* Precedence: Operator with higher precedence are said to "bind tighter"
+* Associativity: Left or right side first, Assignment are right-handed
+
+![img_4.png](img_4.png)
