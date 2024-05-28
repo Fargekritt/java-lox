@@ -25,7 +25,14 @@ public class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        return comma();
+    }
+    private Expr comma(){
+        Expr expr = equality();
+        while (match(COMMA)){
+
+        }
+        return expr;
     }
 
     private Expr equality() {

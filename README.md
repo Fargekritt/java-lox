@@ -15,7 +15,8 @@ This project is the java part of the book.
 
 Lower = higher precedence
 ```BNF
-  expression    -> equality
+  expression    -> comma ;
+  comma         -> equality ( "," expression )* ;
   equality      -> comparison ( ( "!=" | "==" ) comparison )* ;
   comparison    -> term ( ( ">" | "<" | ">=" | "<=" ) term )* ;
   term          -> factor ( ( "-" | "+" ) factor )* ;
