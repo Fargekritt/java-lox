@@ -169,3 +169,74 @@ With all the syntax sugar
    binary       -> expression operator expression
    operator     -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+" | "-" | "*" | "/" ;
 ```
+
+```
+( "(" ( expr ( "," expr )* )? ")" | "." IDENTIFIER )+ | IDENTIFIER | NUMBER
+
+( "(" ( expr ( "," expr )* )? ")" | "." IDENTIFIER )+
+IDENTIFIER
+NUMBER
+
+
+"(" ( expr ( "," expr )* )? ")"
+"." IDENTIFIER
+IDENTIFIER
+NUMBER
+
+"(" ( expr ( "," expr )* )? ")"
+"(" expr ")"
+"." IDENTIFIER
+IDENTIFIER
+NUMBER
+
+
+"(" ( expr ( "," expr )* )? ")"
+"(" expr ")"
+"(" ")"
+"." IDENTIFIER
+IDENTIFIER
+NUMBER
+
+expr -> "(" expr  "," expr  ")"
+expr -> "(" expr ")"
+expr -> "(" ")"
+expr -> "." IDENTIFIER
+expr -> IDENTIFIER
+expr -> NUMBER
+
+
+
+
+
+```
+
+```BNF
+  expr          -> expr ( "(" ( expr ( "," expr )* )? ")" | "." IDENTIFIER )+ | IDENTIFIER | NUMBER
+  
+  
+  expr          -> expr ( "(" ( expr ( "," expr )* )? ")" | "." IDENTIFIER )
+  expr          -> expr IDENTIFIER
+  expr          -> expr NUMBER 
+ 
+ 
+  expr          -> expr "(" ( expr ( "," expr )* )? ")"
+  expr          -> expr "." IDENTIFIER
+  expr          -> expr IDENTIFIER
+  expr          -> expr NUMBER 
+  
+  
+  expr          -> expr "(" ( expr ( "," expr )* )? ")"
+  expr          -> expr "("  ")"
+  expr          -> expr "." IDENTIFIER
+  expr          -> expr IDENTIFIER
+  expr          -> expr NUMBER 
+  
+  
+  
+  expr          -> expr "(" ( expr ( "," expr )* )? ")"
+  expr          -> expr "("  expr "," expr  ")"
+  expr          -> expr "("  ")"
+  expr          -> expr "." IDENTIFIER
+  expr          -> expr IDENTIFIER
+  expr          -> expr NUMBER 
+```
