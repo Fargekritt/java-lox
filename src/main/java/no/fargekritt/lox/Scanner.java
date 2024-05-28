@@ -123,6 +123,7 @@ public class Scanner {
 
         if (isAtEnd()) {
             Lox.error(line, "Unterminated string");
+            return;
         }
 
         // the closing "
