@@ -6,12 +6,22 @@ import static no.fargekritt.lox.Lox.error;
 import static no.fargekritt.lox.TokenType.*;
 
 public class Parser {
-    private static class ParseError extends RuntimeException{}
+    private static class ParseError extends RuntimeException {
+    }
+
     private final List<Token> tokens;
     private int current = 0;
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
+    }
+
+    Expr parse(){
+        try {
+            return expression();
+        } catch (ParseError error){
+            return null;
+        }
     }
 
     private Expr expression() {
@@ -66,8 +76,8 @@ public class Parser {
         return expr;
     }
 
-    private Expr unary(){
-        if(match(BANG, MINUS)){
+    private Expr unary() {
+        if (match(BANG, MINUS)) {
             Token operator = previous();
             Expr right = unary();
             return new Expr.Unary(operator, right);
@@ -76,21 +86,21 @@ public class Parser {
     }
 
 
-    private Expr primary(){
-        if(match(FALSE)) return new Expr.Literal(false);
-        if(match(TRUE)) return new Expr.Literal(true);
-        if(match(NIL)) return new Expr.Literal(null);
+    private Expr primary() {
+        if (match(FALSE)) return new Expr.Literal(false);
+        if (match(TRUE)) return new Expr.Literal(true);
+        if (match(NIL)) return new Expr.Literal(null);
 
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
         }
 
-        if(match(LEFT_PAREN)){
+        if (match(LEFT_PAREN)) {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression");
-            return  new Expr.Grouping(expr);
+            return new Expr.Grouping(expr);
         }
-        return null;
+        throw error(peek(), "Expect expression.");
     }
 
 
@@ -106,8 +116,8 @@ public class Parser {
     }
 
     // Enter panic mode!
-    private Token consume(TokenType type, String message){
-        if(check(type)) return advance();
+    private Token consume(TokenType type, String message) {
+        if (check(type)) return advance();
 
         throw error(peek(), message);
     }
@@ -134,9 +144,35 @@ public class Parser {
         return tokens.get(current - 1);
     }
 
-    private ParseError error(Token token, String message){
+    private ParseError error(Token token, String message) {
         Lox.error(token, message);
         return new ParseError();
+    }
+
+    // Go forward till we find the start of a new statement
+    private void synchronize() {
+        advance();
+
+
+        while (!isAtEnd()) {
+
+            // If we are at the end of a statement
+            if (previous().type == SEMICOLON) return;
+
+            // If we are at the start of a statement
+            switch (peek().type) {
+                case CLASS,
+                     FUN,
+                     VAR,
+                     FOR,
+                     IF,
+                     WHILE,
+                     PRINT,
+                     RETURN:
+                    return;
+            }
+            advance();
+        }
     }
 
 
