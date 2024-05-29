@@ -2,4 +2,6 @@
     hadde
     print "hello"
 */
+a = 2
+b = 1 +a
 print "hello"

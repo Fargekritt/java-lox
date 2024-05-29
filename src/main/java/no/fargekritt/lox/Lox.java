@@ -35,7 +35,7 @@ public class Lox {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
         while (true) {
-            System.out.println("> ");
+            System.out.print("> ");
             String line = reader.readLine();
             if (line == null) break;
             run(line);
@@ -49,10 +49,17 @@ public class Lox {
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
         Expr expression = parser.parse();
-
+        System.out.println("=================TOKENS===========");
+        for (Token token : tokens) {
+            System.out.println(token);
+        }
+        System.out.println("=================TOKENS end===========");
         if( hadError) return;
 
         System.out.println(new AstPrinter().print(expression));
+
+
+
     }
 
     static void error(int line, String message) {
