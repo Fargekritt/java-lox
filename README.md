@@ -15,13 +15,25 @@ This project is the java part of the book.
 
 Lower = higher precedence
 ```BNF
-  expression    -> equality
+  program       -> statement* EOF ;
+  statement     -> exprStmt | printStmt ;
+  exprStmt      -> expression ";" ;
+  printStmt     -> "print" expression ";" ;
+  expression    -> equality ;
   equality      -> comparison ( ( "!=" | "==" ) comparison )* ;
   comparison    -> term ( ( ">" | "<" | ">=" | "<=" ) term )* ;
   term          -> factor ( ( "-" | "+" ) factor )* ;
   factor        -> unary ( ( "/" | "*" ) unary )* ;
   unary         -> ( "!" | "-" ) unary | primary ;
   primary       -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ; 
+```
+
+Statement 
+```BNF
+  program       -> statement* EOF ;
+  statement     -> exprStmt | printStmt ;
+  exprStmt      -> expression ";" ;
+  printStmt     -> "print" expression ";" ;
 ```
 
 ## Chapter 2 - A map of the territory
@@ -306,6 +318,9 @@ A user running the REPL should not be able to crash the whole thing but instead 
 Our tree-walk interperer evaluates nested expressions using recursion. 
 We need to unwind it when an error occurs
 Java exceptions works well here.
+
+
+### Chapter 8
 
 
 

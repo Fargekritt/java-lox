@@ -1,7 +1,3 @@
-/* hello
-    hadde
-    print "hello"
-*/
-a = 2
-b = 1 +a
-print "hello"
+print "one";
+print true;
+print 2 + 1;
