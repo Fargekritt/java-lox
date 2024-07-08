@@ -1,10 +1,10 @@
 package no.fargekritt.lox;
 
-public class RPNPrinter implements Expr.Visitor<String>{
+public class RPNPrinter implements Expr.Visitor<String> {
     @Override
     public String visitBinaryExpr(Expr.Binary expr) {
 //        return Rpninfy(expr.operator.lexeme, expr.left, expr.right);
-        return expr.left.accept(this) + " "+  expr.right.accept(this) + " " + expr.operator.lexeme;
+        return expr.left.accept(this) + " " + expr.right.accept(this) + " " + expr.operator.lexeme;
     }
 
 
@@ -30,15 +30,9 @@ public class RPNPrinter implements Expr.Visitor<String>{
 
     public static void main(String[] args) {
         Expr expression = new Expr.Binary(new Expr.Grouping(
-                new Expr.Binary(
-                        new Expr.Literal(1),
-                        new Token(TokenType.PLUS, "+", null, 1),
-                        new Expr.Literal(2))), new Token(TokenType.STAR, "*", null, 1),
-                new Expr.Grouping(
-                        new Expr.Binary(
-                                new Expr.Literal(3),
-                                new Token(TokenType.PLUS, "-", null, 1),
-                                new Expr.Literal(4))));
+                new Expr.Binary(new Expr.Literal(1), new Token(TokenType.PLUS, "+", null, 1), new Expr.Literal(2))),
+                new Token(TokenType.STAR, "*", null, 1), new Expr.Grouping(
+                new Expr.Binary(new Expr.Literal(3), new Token(TokenType.PLUS, "-", null, 1), new Expr.Literal(4))));
 
         System.out.println(new RPNPrinter().print(expression));
     }
