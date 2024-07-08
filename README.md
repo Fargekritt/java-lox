@@ -269,3 +269,44 @@ expr -> NUMBER
 * Associativity: Left or right side first, Assignment are right-handed
 
 ![img_4.png](img_4.png)
+
+
+### Chapter 7
+Code will run! Let's go!
+
+#### Values
+We need to hold all the values used in the Lox language as Java objects
+![img_5.png](img_5.png)
+
+#### Evaluating Expressions
+Further reading https://en.wikipedia.org/wiki/Interpreter_pattern
+We will be using the visitor pattern
+Same with the AstPrinter we tell each expr type how to evaluate itself.
+
+##### Evaluating literals
+Literals are "pure" values, its written in the code itself, 
+unlike calculated values, so we can just extract it from the expr itself.
+
+##### Evaluating parentheses
+parentheses should evaluate everything inside the parentheses and "become" that value,
+so recursion here works well.
+
+
+##### Evaluating unary expressions
+Like grouping (parentheses) has a single subexpression, we must evaluate first.
+
+We can't evaluate the unary operator itself until we evaluate its subexpressions (POST-ORDER TRAVERSAL)
+
+
+#### Runtime erroes
+We don't want to crash the whole JVM when an runtime error occurs.
+A user running the REPL should not be able to crash the whole thing but instead ignore the line.
+
+#### Detecting runtime errors
+Our tree-walk interperer evaluates nested expressions using recursion. 
+We need to unwind it when an error occurs
+Java exceptions works well here.
+
+
+
+
