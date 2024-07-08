@@ -14,21 +14,27 @@ This project is the java part of the book.
 ```
 
 Lower = higher precedence
+
 ```BNF
   program       -> statement* EOF ;
+  declaration   -> varDecl | statement ;
+  varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
   statement     -> exprStmt | printStmt ;
   exprStmt      -> expression ";" ;
   printStmt     -> "print" expression ";" ;
-  expression    -> equality ;
+  expression    -> assignment ;
+  assignment    -> IDENTIFIER "=" assignment | equality ;
   equality      -> comparison ( ( "!=" | "==" ) comparison )* ;
   comparison    -> term ( ( ">" | "<" | ">=" | "<=" ) term )* ;
   term          -> factor ( ( "-" | "+" ) factor )* ;
   factor        -> unary ( ( "/" | "*" ) unary )* ;
   unary         -> ( "!" | "-" ) unary | primary ;
-  primary       -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ; 
+  primary       -> NUMBER | STRING 
+                | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ; 
 ```
 
-Statement 
+Statement
+
 ```BNF
   program       -> statement* EOF ;
   statement     -> exprStmt | printStmt ;
@@ -124,7 +130,7 @@ Statement
 
 * Compiles to native code from bytecode (Java) or source (javascript) while running the code.
 * Recompiles the code during execution of the code
-  * Hooks to profile the program to optimize and recompile.
+    * Hooks to profile the program to optimize and recompile.
 
 ### Chapter 2.3 Compilers and interpreters
 
@@ -133,20 +139,20 @@ Statement
 * A compiler compiles the code but doesn't run it
 * An interpreter runs the source code, "runs from source"
 * Many scripting languages are mix of both interpreted and compiled.
-  * CPython, Lua is a couple of languages like this
+    * CPython, Lua is a couple of languages like this
 
 ## Chapter 4
 
 ### Challenges
+
 1. Python is not a regular language, since you cant use a regex to parse the grammer. python is indent sensetive and
-you need to know level of indention which you cant do with regex.
+   you need to know level of indention which you cant do with regex.
 2. TODO
 3. Python needs to know the white space to know what scope its in.
-Comments might be used to create better debugging, can be used to create documention (javaDoc)
-and if you want to source-to-source you might want to keep comments in.
+   Comments might be used to create better debugging, can be used to create documention (javaDoc)
+   and if you want to source-to-source you might want to keep comments in.
 
 ## Chapter 5
-
 
 ### Context-free grammars
 
@@ -158,31 +164,35 @@ Formal grammars job is to say which strings are valid
 #### Rules for grammars
 
 ##### derivations
+
 * Generate strings from the rules
 * Rules are called prodcutions since they produce a string
 * each prodcution in a context free grammar has a head and a body
 * Head its name
 * Body is what it generates (List of symbols)
-  * Terminal - Terminal as in end, (tokens from scanner like (if or 1234))
-  * Nonterminal - Is a reference to another rule
-  * lexemes are all caps
+    * Terminal - Terminal as in end, (tokens from scanner like (if or 1234))
+    * Nonterminal - Is a reference to another rule
+    * lexemes are all caps
 * Rules can have the same name
 
 ##### BNF
+
 A way to write down the rules of a language
+
 * Format:
-  * Name -> then a sequence of symbols ending with ;
-  * terminals are surrounded with "" nonterminals are lowercase words
-![img_1.png](img_1.png)
+    * Name -> then a sequence of symbols ending with ;
+    * terminals are surrounded with "" nonterminals are lowercase words
+      ![img_1.png](img_1.png)
 
 ![img_2.png](img_2.png)
 
 To make the syntax easier to write we use | as or so we can write
+
 * bread → "toast" | "biscuits" | "English muffin" ;
 * we can also use () to group them protein → ( "scrambled" | "poached" | "fried" ) "eggs" ;
 * and normal regex recursion crispiness → "really" "really"* ;
 * ? to make it optional zore or 1 time breakfast → protein ( "with" breakfast "on the side" )? ;
-With all the syntax sugar
+  With all the syntax sugar
 * ![img_3.png](img_3.png)
 
 #### A grammar for Lox  expressions
@@ -191,7 +201,6 @@ With all the syntax sugar
 * Unary expressions: prefix ! to perform a logical bot, and - to negate a number
 * Binary expressions: infix arithmetic (+, -, *, /) and logical operators (==, !=, <, <=, >, >=)
 * Parentheses: A pair of ( and ) wrapped around an expression
-
 
 ```BNF
    expression   -> literal | unary | binary | grouping ;
@@ -282,43 +291,47 @@ expr -> NUMBER
 
 ![img_4.png](img_4.png)
 
-
 ### Chapter 7
+
 Code will run! Let's go!
 
 #### Values
+
 We need to hold all the values used in the Lox language as Java objects
 ![img_5.png](img_5.png)
 
 #### Evaluating Expressions
+
 Further reading https://en.wikipedia.org/wiki/Interpreter_pattern
 We will be using the visitor pattern
 Same with the AstPrinter we tell each expr type how to evaluate itself.
 
 ##### Evaluating literals
-Literals are "pure" values, its written in the code itself, 
+
+Literals are "pure" values, its written in the code itself,
 unlike calculated values, so we can just extract it from the expr itself.
 
 ##### Evaluating parentheses
+
 parentheses should evaluate everything inside the parentheses and "become" that value,
 so recursion here works well.
 
-
 ##### Evaluating unary expressions
+
 Like grouping (parentheses) has a single subexpression, we must evaluate first.
 
 We can't evaluate the unary operator itself until we evaluate its subexpressions (POST-ORDER TRAVERSAL)
 
-
 #### Runtime erroes
+
 We don't want to crash the whole JVM when an runtime error occurs.
 A user running the REPL should not be able to crash the whole thing but instead ignore the line.
 
 #### Detecting runtime errors
-Our tree-walk interperer evaluates nested expressions using recursion. 
+
+Our tree-walk interperer evaluates nested expressions using recursion.
 We need to unwind it when an error occurs
 Java exceptions works well here.
-
 
 ### Chapter 8
 
