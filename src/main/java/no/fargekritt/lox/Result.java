@@ -1,5 +1,6 @@
 package no.fargekritt.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,11 +15,11 @@ public class Result {
 
     public Result(Expr expr) {
         this.expr = expr;
-        this.stmt = null;
+        this.stmt = new ArrayList<>();
     }
 
     public boolean isStmt(){
-        return stmt != null;
+        return !stmt.isEmpty() && stmt.getFirst() != null;
     }
 
     public boolean isExpr(){

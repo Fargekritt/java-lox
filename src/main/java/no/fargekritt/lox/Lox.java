@@ -49,7 +49,7 @@ public class Lox {
             if(result.isExpr()){
                 String out = interpreter.interpret(result.getExpr());
                 System.out.println(out);
-            } else {
+            } else if(result.isStmt()){
                 interpreter.interpret(result.getStmt());
             }
 

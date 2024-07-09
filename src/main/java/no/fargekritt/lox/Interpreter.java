@@ -3,6 +3,7 @@ package no.fargekritt.lox;
 import java.util.List;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+    private static Object uninitialized = new Object();
 
     private Environment environment = new Environment();
 
@@ -139,7 +140,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return environment.get(expr.name);
+        Object value = environment.get(expr.name);
+        if (value == uninitialized){
+            throw new RuntimeError(expr.name, "Variable '" + expr.name.lexeme + "' is uninitialized.");
+        }
+        return value;
     }
 
     private Object evaluate(Expr expr) {
@@ -205,7 +210,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
-        Object value = null;
+        Object value = uninitialized;
         if (stmt.initializer != null) value = evaluate(stmt.initializer);
 
         environment.define(stmt.name.lexeme, value);
