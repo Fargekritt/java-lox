@@ -5,6 +5,7 @@ import java.util.List;
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private Environment environment = new Environment();
+
     void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
@@ -12,6 +13,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
+        }
+    }
+
+    String interpret(Expr expression){
+        try{
+
+            Object value = evaluate(expression);
+            return stringify(value);
+        } catch (RuntimeError error){
+            Lox.runtimeError(error);
+            return null;
         }
     }
 

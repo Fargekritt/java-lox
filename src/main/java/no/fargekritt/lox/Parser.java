@@ -7,6 +7,10 @@ import static no.fargekritt.lox.Lox.error;
 import static no.fargekritt.lox.TokenType.*;
 
 public class Parser {
+
+    private boolean allowExpression = false;
+    private boolean foundExpression = false;
+
     private static class ParseError extends RuntimeException {
     }
 
@@ -26,21 +30,38 @@ public class Parser {
         return statements;
     }
 
-    private Stmt declaration(){
+    Result parseRepl() {
+        List<Stmt> statements = new ArrayList<>();
+        allowExpression = true;
+        while (!isAtEnd()) {
+            statements.add(declaration());
+            if (foundExpression) {
+                Stmt last = statements.getLast();
+                Expr expr = ((Stmt.Expression) last).expression;
+                return new Result(expr);
+            }
+
+            allowExpression = false;
+        }
+
+        return new Result(statements);
+    }
+
+    private Stmt declaration() {
         try {
-            if(match(VAR)) return varDeclaration();
+            if (match(VAR)) return varDeclaration();
             return statement();
-        } catch (ParseError error){
+        } catch (ParseError error) {
             synchronize();
             return null;
         }
     }
 
-    private Stmt varDeclaration(){
+    private Stmt varDeclaration() {
         Token name = consume(IDENTIFIER, "Expect variable name.");
 
         Expr initializer = null;
-        if(match(EQUAL)) initializer = expression();
+        if (match(EQUAL)) initializer = expression();
 
         consume(SEMICOLON, "Expect ';' after variable declaration.");
         return new Stmt.Var(name, initializer);
@@ -60,13 +81,17 @@ public class Parser {
 
     }
 
-    private Stmt expressionStatement(){
+    private Stmt expressionStatement() {
         Expr expr = expression();
-        consume(SEMICOLON, "Expected ';' after expression.");
+        if (allowExpression && isAtEnd()) {
+            foundExpression = true;
+        } else {
+            consume(SEMICOLON, "Expected ';' after expression.");
+        }
         return new Stmt.Expression(expr);
     }
 
-    private List<Stmt> block(){
+    private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
 
         while (!check(RIGHT_BRACE) && !isAtEnd()) {
@@ -81,16 +106,16 @@ public class Parser {
         return assignment();
     }
 
-    private Expr assignment(){
+    private Expr assignment() {
         Expr expr = equality();
 
-        if(match(EQUAL)){
+        if (match(EQUAL)) {
             Token equals = previous();
             Expr value = assignment();
 
-            if (expr instanceof Expr.Variable){
-                Token name = ((Expr.Variable)expr).name;
-                return new Expr.Assign(name,value);
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable) expr).name;
+                return new Expr.Assign(name, value);
             }
 
             error(equals, "Invalid assignment target.");
@@ -178,6 +203,7 @@ public class Parser {
 
     /**
      * Takes a list of TokenTypes, and if current is that token type advance the counter by 1
+     *
      * @param types List of TokenTypes to match
      * @return True if match was found
      */
@@ -201,6 +227,7 @@ public class Parser {
 
     /**
      * Checks if the current Token is of a specific TokenType
+     *
      * @param type TokenType to check
      * @return True if current Token is same as param
      */
@@ -223,7 +250,6 @@ public class Parser {
     }
 
     /**
-     *
      * @return The previous token
      */
     private Token previous() {
