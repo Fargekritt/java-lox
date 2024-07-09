@@ -19,7 +19,8 @@ Lower = higher precedence
   program       -> statement* EOF ;
   declaration   -> varDecl | statement ;
   varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
-  statement     -> exprStmt | printStmt ;
+  statement     -> exprStmt | printStmt | block ;
+  block         -> "{" declararion "}" ;
   exprStmt      -> expression ";" ;
   printStmt     -> "print" expression ";" ;
   expression    -> assignment ;
@@ -334,6 +335,17 @@ We need to unwind it when an error occurs
 Java exceptions works well here.
 
 ### Chapter 8
+
+#### Scope
+Block scopes shadows global scope
+
+Each block has its own environment
+
+Chaining environments, inner scope has ref to outer scope.
+
+
+
+
 
 
 
