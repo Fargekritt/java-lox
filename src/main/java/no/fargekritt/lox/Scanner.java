@@ -66,8 +66,8 @@ public class Scanner {
             case '*' -> addToken(STAR);
             case '!' -> addToken(match('=') ? BANG_EQUAL : BANG);
             case '=' -> addToken(match('=') ? EQUAL_EQUAL : EQUAL);
-            case '<' -> addToken(match('=') ? GREATER_EQUAL : GREATER);
-            case '>' -> addToken(match('=') ? LESS_EQUAL : LESS);
+            case '>' -> addToken(match('=') ? GREATER_EQUAL : GREATER);
+            case '<' -> addToken(match('=') ? LESS_EQUAL : LESS);
             case '/' -> {
                 if (match('/')) {
                     // Comments the whole line

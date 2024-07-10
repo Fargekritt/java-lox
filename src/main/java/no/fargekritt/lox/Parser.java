@@ -1,6 +1,7 @@
 package no.fargekritt.lox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static no.fargekritt.lox.Lox.error;
@@ -26,31 +27,100 @@ public class Parser {
         return statements;
     }
 
-    private Stmt declaration(){
+    private Stmt declaration() {
         try {
-            if(match(VAR)) return varDeclaration();
+            if (match(VAR)) return varDeclaration();
             return statement();
-        } catch (ParseError error){
+        } catch (ParseError error) {
             synchronize();
             return null;
         }
     }
 
-    private Stmt varDeclaration(){
+    private Stmt varDeclaration() {
         Token name = consume(IDENTIFIER, "Expect variable name.");
 
         Expr initializer = null;
-        if(match(EQUAL)) initializer = expression();
+        if (match(EQUAL)) initializer = expression();
 
         consume(SEMICOLON, "Expect ';' after variable declaration.");
         return new Stmt.Var(name, initializer);
     }
 
     private Stmt statement() {
+        if (match(IF)) return ifStatement();
+        if (match(FOR)) return forStatement();
         if (match(PRINT)) return printStatement();
+        if (match(WHILE)) return whileStatement();
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
 
         return expressionStatement();
+    }
+
+    private Stmt forStatement() {
+        consume(LEFT_PAREN, "Expected '(' after 'for'.");
+        Stmt initializer;
+        if (match(SEMICOLON)) {
+            initializer = null;
+        } else if (match(VAR)) {
+            initializer = varDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+
+        Expr condition = null;
+        if (!check(SEMICOLON)) {
+            condition = expression();
+        }
+        consume(SEMICOLON, "Expected ';' after loop condition.");
+
+        Expr increment = null;
+        if (!check(RIGHT_PAREN)) {
+            increment = expression();
+        }
+        consume(RIGHT_PAREN, "Expected ')' after for clauses.");
+
+        Stmt body = statement();
+
+        if (increment != null) {
+            body = new Stmt.Block(
+                    Arrays.asList(
+                            body,
+                            new Stmt.Expression(increment)));
+        }
+
+        if (condition == null) {
+            condition = new Expr.Literal(true);
+        }
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null) {
+            body = new Stmt.Block(Arrays.asList(initializer, body));
+        }
+
+        return body;
+    }
+
+    private Stmt whileStatement() {
+        consume(LEFT_PAREN, "Expected '(' after 'while'.");
+        Expr expr = expression();
+        consume(RIGHT_PAREN, "Expected ')' after expression");
+        Stmt body = statement();
+
+        return new Stmt.While(expr, body);
+    }
+
+    private Stmt ifStatement() {
+        consume(LEFT_PAREN, "Expected '(' after 'if'.");
+        Expr expr = expression();
+        consume(RIGHT_PAREN, "Expected ')' after expression");
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if (match(ELSE)) {
+            elseBranch = statement();
+        }
+
+        return new Stmt.If(expr, thenBranch, elseBranch);
     }
 
     private Stmt printStatement() {
@@ -60,13 +130,13 @@ public class Parser {
 
     }
 
-    private Stmt expressionStatement(){
+    private Stmt expressionStatement() {
         Expr expr = expression();
         consume(SEMICOLON, "Expected ';' after expression.");
         return new Stmt.Expression(expr);
     }
 
-    private List<Stmt> block(){
+    private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
 
         while (!check(RIGHT_BRACE) && !isAtEnd()) {
@@ -81,16 +151,16 @@ public class Parser {
         return assignment();
     }
 
-    private Expr assignment(){
-        Expr expr = equality();
+    private Expr assignment() {
+        Expr expr = or();
 
-        if(match(EQUAL)){
+        if (match(EQUAL)) {
             Token equals = previous();
             Expr value = assignment();
 
-            if (expr instanceof Expr.Variable){
-                Token name = ((Expr.Variable)expr).name;
-                return new Expr.Assign(name,value);
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable) expr).name;
+                return new Expr.Assign(name, value);
             }
 
             error(equals, "Invalid assignment target.");
@@ -98,6 +168,26 @@ public class Parser {
 
         }
         return expr;
+    }
+
+    private Expr or() {
+        Expr left = and();
+        if (match(OR)) {
+            Expr right = and();
+            Token operator = previous();
+            return new Expr.Logical(left, operator, right);
+        }
+        return left;
+    }
+
+    private Expr and() {
+        Expr left = equality();
+        if (match(AND)) {
+            Expr right = equality();
+            Token operator = previous();
+            return new Expr.Logical(left, operator, right);
+        }
+        return left;
     }
 
     private Expr equality() {
@@ -115,7 +205,7 @@ public class Parser {
 
         Expr expr = term();
 
-        while (match(GREATER_EQUAL, GREATER, LESS_EQUAL, LESS_EQUAL)) {
+        while (match(GREATER_EQUAL, GREATER, LESS_EQUAL, LESS)) {
             Token operator = previous();
             Expr right = term();
             expr = new Expr.Binary(expr, operator, right);
@@ -178,6 +268,7 @@ public class Parser {
 
     /**
      * Takes a list of TokenTypes, and if current is that token type advance the counter by 1
+     *
      * @param types List of TokenTypes to match
      * @return True if match was found
      */
@@ -201,6 +292,7 @@ public class Parser {
 
     /**
      * Checks if the current Token is of a specific TokenType
+     *
      * @param type TokenType to check
      * @return True if current Token is same as param
      */
@@ -223,7 +315,6 @@ public class Parser {
     }
 
     /**
-     *
      * @return The previous token
      */
     private Token previous() {
@@ -247,14 +338,7 @@ public class Parser {
 
             // If we are at the start of a statement
             switch (peek().type) {
-                case CLASS,
-                     FUN,
-                     VAR,
-                     FOR,
-                     IF,
-                     WHILE,
-                     PRINT,
-                     RETURN:
+                case CLASS, FUN, VAR, FOR, IF, WHILE, PRINT, RETURN:
                     return;
             }
             advance();
