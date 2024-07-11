@@ -11,6 +11,7 @@ public class Parser {
     private static class ParseError extends RuntimeException {
     }
 
+    private int loopDepth = 0;
     private final List<Token> tokens;
     private int current = 0;
 
@@ -53,8 +54,18 @@ public class Parser {
         if (match(PRINT)) return printStatement();
         if (match(WHILE)) return whileStatement();
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
+        if (match(BREAK)) return breakStatement();
 
         return expressionStatement();
+    }
+
+    private Stmt breakStatement() {
+        if(loopDepth == 0){
+            error(previous(), "'break' cant be used outside loop");
+        }
+        consume(SEMICOLON, "Expect ';' after 'break'");
+        return new Stmt.Break();
+
     }
 
     private Stmt forStatement() {
@@ -80,34 +91,44 @@ public class Parser {
         }
         consume(RIGHT_PAREN, "Expected ')' after for clauses.");
 
-        Stmt body = statement();
+        try{
+            loopDepth++;
+            Stmt body = statement();
 
-        if (increment != null) {
-            body = new Stmt.Block(
-                    Arrays.asList(
-                            body,
-                            new Stmt.Expression(increment)));
+            if (increment != null) {
+                body = new Stmt.Block(
+                        Arrays.asList(
+                                body,
+                                new Stmt.Expression(increment)));
+            }
+
+            if (condition == null) {
+                condition = new Expr.Literal(true);
+            }
+            body = new Stmt.While(condition, body);
+
+            if (initializer != null) {
+                body = new Stmt.Block(Arrays.asList(initializer, body));
+            }
+
+            return body;
+        } finally {
+            loopDepth--;
         }
 
-        if (condition == null) {
-            condition = new Expr.Literal(true);
-        }
-        body = new Stmt.While(condition, body);
-
-        if (initializer != null) {
-            body = new Stmt.Block(Arrays.asList(initializer, body));
-        }
-
-        return body;
     }
 
     private Stmt whileStatement() {
         consume(LEFT_PAREN, "Expected '(' after 'while'.");
         Expr expr = expression();
         consume(RIGHT_PAREN, "Expected ')' after expression");
-        Stmt body = statement();
-
-        return new Stmt.While(expr, body);
+        try{
+            loopDepth++;
+            Stmt body = statement();
+            return new Stmt.While(expr, body);
+        } finally {
+            loopDepth--;
+        }
     }
 
     private Stmt ifStatement() {
