@@ -415,8 +415,9 @@ public class Parser {
         // NOTE:
         // This should not be needed.
         // Fucks up when the start of statement is the next token
-        //
-//        advance();
+        // its needs to be there anyway!
+        // My bad
+        advance();
 
 
         while (!isAtEnd()) {
