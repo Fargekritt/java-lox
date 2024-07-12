@@ -2,17 +2,18 @@ package no.fargekritt.lox;
 
 import java.util.List;
 
-abstract class Expr {
+public abstract class Expr {
     interface Visitor<R> {
         R visitAssignExpr(Assign expr);
         R visitBinaryExpr(Binary expr);
+        R visitCallExpr(Call expr);
         R visitGroupingExpr(Grouping expr);
         R visitLiteralExpr(Literal expr);
         R visitLogicalExpr(Logical expr);
         R visitUnaryExpr(Unary expr);
         R visitVariableExpr(Variable expr);
 }
-    static class Assign extends Expr {
+    public static class Assign extends Expr {
         final Token name;
         final Expr value;
 
@@ -27,7 +28,7 @@ abstract class Expr {
         }
     }
 
-    static class Binary extends Expr {
+    public static class Binary extends Expr {
         final Expr left;
         final Token operator;
         final Expr right;
@@ -44,7 +45,24 @@ abstract class Expr {
         }
     }
 
-    static class Grouping extends Expr {
+    public static class Call extends Expr {
+        final Expr callee;
+        final Token paren;
+        final List<Expr> arguments;
+
+        Call(Expr callee, Token paren, List<Expr> arguments) {
+            this.callee = callee;
+            this.paren = paren;
+            this.arguments = arguments;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitCallExpr(this);
+        }
+    }
+
+    public static class Grouping extends Expr {
         final Expr expression;
 
         Grouping(Expr expression) {
@@ -57,7 +75,7 @@ abstract class Expr {
         }
     }
 
-    static class Literal extends Expr {
+    public static class Literal extends Expr {
         final Object value;
 
         Literal(Object value) {
@@ -70,7 +88,7 @@ abstract class Expr {
         }
     }
 
-    static class Logical extends Expr {
+    public static class Logical extends Expr {
         final Expr left;
         final Token operator;
         final Expr right;
@@ -87,7 +105,7 @@ abstract class Expr {
         }
     }
 
-    static class Unary extends Expr {
+    public static class Unary extends Expr {
         final Token operator;
         final Expr right;
 
@@ -102,7 +120,7 @@ abstract class Expr {
         }
     }
 
-    static class Variable extends Expr {
+    public static class Variable extends Expr {
         final Token name;
 
         Variable(Token name) {

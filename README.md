@@ -39,15 +39,18 @@ Statement
 
 ```BNF
   program       -> statement* EOF ;
-  declaration   -> varDecl | statement ;
-  statement     -> exprStmt | ifStmt | whileStmt | forStmt | printStmt | block ;
+  declaration   -> funDecl | varDecl | statement ;
+  statement     -> exprStmt | ifStmt | whileStmt | forStmt | printStmt | block | returnStmt ;
+  returnStmt    -> "return" expression? ";" ;
   forStmt       -> "for" "(" ( varDecl | exprStmt | ";" ) 
                     expression? ";" 
                     expression? "  ")" statement ;
   varDecl       -> "var" IDENTIFIER ( "=" expression )? ";" ;
+  funDecl       -> "fun" function ;
+  function      -> IDENTIFIER "(" parameters? ")" block ;
   whileStmt     -> "while" "(" expression ")" statement ;
   ifStmt        -> "if" "(" expression ")" statement ( "else" statement )? ;
-  block         -> "{" declararion "}" ;
+  block         -> "{" declararion* "}" ;
   exprStmt      -> expression ";" ;
   printStmt     -> "print" expression ";" ;
 ```
@@ -55,6 +58,8 @@ Statement
 Expression
 
 ```BNF
+  parameters    -> IDENTIFIER ( "," IDENTIFIER )* ;
+  arguments     -> expression ( "," expression )* ;
   expression    -> assignment ;
   assignment    -> IDENTIFIER "=" assignment | logic_or ;
   logic_or      -> logic_and ( "or" logic_and )* ;
@@ -63,9 +68,10 @@ Expression
   comparison    -> term ( ( ">" | "<" | ">=" | "<=" ) term )* ;
   term          -> factor ( ( "-" | "+" ) factor )* ;
   factor        -> unary ( ( "/" | "*" ) unary )* ;
-  unary         -> ( "!" | "-" ) unary | primary ;
-  primary       -> NUMBER | STRING 
-                | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ; 
+  unary         -> ( "!" | "-" ) unary | call ;
+  call          -> primary ( "(" arguments? ")" ) ;
+  primary       -> NUMBER | STRING
+                 | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ; 
 ```
 
 ## Chapter 2 - A map of the territory
@@ -375,6 +381,8 @@ Conditional or branching control flow (If)
 
 Looping control flow (for, while)
 
+
+### Chapter 10
 
 
 
