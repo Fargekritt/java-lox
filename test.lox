@@ -1,13 +1,8 @@
-fun makeCounter() {
-  var i = 0;
-  fun count() {
-    i = i + 1;
-    print i;
-  }
-
-  return count;
+fun main(){
+    print "hello!, what is your name?";
+    var name = input();
+    var output = "Nice to meet you! " + name + "!";
+    print output;
 }
 
-var counter = makeCounter();
-counter(); // "1".
-counter(); // "2".
+main();

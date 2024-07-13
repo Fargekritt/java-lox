@@ -25,6 +25,23 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 return "<native fn>";
             }
         });
+        globals.define("input", new LoxCallable() {
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                java.util.Scanner scanner = new java.util.Scanner(System.in);
+                return scanner.nextLine();
+            }
+
+            @Override
+            public String toString() {
+                return "<native fn>";
+            }
+        });
         try {
             for (Stmt statement : statements) {
                 execute(statement);
