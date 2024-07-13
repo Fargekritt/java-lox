@@ -385,4 +385,25 @@ Looping control flow (for, while)
 ### Chapter 10
 
 
+#### nameless functions
+
+Step 1:
+Separate functions declaration and its body into two separate objects.
+One function statement and one function expression.
+* In the parser, we parse the full function if we find FUN in a declaration.
+  But when we find FUN in primary, we only parse out the body, without the IDENTIFIER.
+* We also make LoxFunction to take in name as a parameter in the constructor,
+  and an Expr.Function instead of a Stmt.Function.
+  This allows us to create a function without a name.
+* update visitFunctionStmt to reflect changes in LoxFunction
+
+
+
+Diffrence between function expression and statement
+Function expression:
+ * Is the actual function body itself
+Function statement:
+ * Is the "name" of the function. the header in C has function Declarations.
+
+
 

@@ -29,7 +29,8 @@ public class Parser {
 
     private Stmt declaration() {
         try {
-            if (match(FUN)) {
+            if (check(FUN) && checkNext(IDENTIFIER)) {
+                advance();
                 return function("function");
             }
             if (match(VAR)) return varDeclaration();
@@ -42,12 +43,16 @@ public class Parser {
 
     private Stmt.Function function(String kind) {
         Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
-        consume(LEFT_PAREN, "Expect '(' after "+ kind + " name.");
+        return new Stmt.Function(name, functionBody(kind));
+    }
+
+    private Expr.Function functionBody(String kind) {
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
         List<Token> parameters = new ArrayList<>();
 
-        if(!check(RIGHT_PAREN)){
+        if (!check(RIGHT_PAREN)) {
             do {
-                if(parameters.size() >= 255){
+                if (parameters.size() >= 255) {
                     error(peek(), "Can't have more than 255 parameters");
                 }
                 parameters.add(consume(IDENTIFIER, "Expect parameter name."));
@@ -57,8 +62,8 @@ public class Parser {
 
         consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
         List<Stmt> body = block();
+        return new Expr.Function(parameters, body);
 
-        return new Stmt.Function(name, parameters, body);
     }
 
     private Stmt varDeclaration() {
@@ -86,7 +91,7 @@ public class Parser {
     private Stmt returnStatement() {
         Token keyword = previous();
         Expr value = null;
-        if (!check(SEMICOLON)){
+        if (!check(SEMICOLON)) {
             value = expression();
         }
 
@@ -319,7 +324,7 @@ public class Parser {
 
         if (!check(RIGHT_PAREN)) {
             do {
-                if(arguments.size() >= 255){
+                if (arguments.size() >= 255) {
                     error(peek(), "Can't have more than 255 arguments");
                 }
                 arguments.add(expression());
@@ -336,6 +341,9 @@ public class Parser {
         if (match(FALSE)) return new Expr.Literal(false);
         if (match(TRUE)) return new Expr.Literal(true);
         if (match(NIL)) return new Expr.Literal(null);
+        if (match(FUN)) {
+            return functionBody("function");
+        }
 
         if (match(NUMBER, STRING)) return new Expr.Literal(previous().literal);
         if (match(IDENTIFIER)) return new Expr.Variable(previous());
@@ -383,6 +391,11 @@ public class Parser {
     private boolean check(TokenType type) {
         if (isAtEnd()) return false;
         return peek().type == type;
+    }
+
+    private boolean checkNext(TokenType type) {
+        if (isAtEnd()) return false;
+        return tokens.get(current + 1).type == type;
     }
 
     private Token advance() {
