@@ -79,7 +79,6 @@ public class Parser {
     private Stmt statement() {
         if (match(IF)) return ifStatement();
         if (match(FOR)) return forStatement();
-        if (match(PRINT)) return printStatement();
         if (match(RETURN)) return returnStatement();
         if (match(WHILE)) return whileStatement();
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
@@ -181,13 +180,6 @@ public class Parser {
         return new Stmt.If(expr, thenBranch, elseBranch);
     }
 
-    private Stmt printStatement() {
-        Expr value = expression();
-        consume(SEMICOLON, "Expect ';' after value.");
-        return new Stmt.Print(value);
-
-    }
-
     private Stmt expressionStatement() {
         Expr expr = expression();
         consume(SEMICOLON, "Expected ';' after expression.");
@@ -212,12 +204,33 @@ public class Parser {
     private Expr assignment() {
         Expr expr = or();
 
+        if (match(PLUS_PLUS, MINUS_MINUS)) {
+            Token assigment = previous();
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable) expr).name;
+                Token operator;
+                if (assigment.type == MINUS_MINUS) {
+                    operator = new Token(MINUS, "-", null, name.line);
+                } else {
+                    operator = new Token(PLUS, "+", null, name.line);
+
+                }
+                Expr desugarAssignment = new Expr.Binary(expr, operator, new Expr.Literal(1.0));
+                return new Expr.Assign(name, desugarAssignment);
+            }
+            throw error(assigment, "Invalid assignment target.");
+
+        }
         if (match(EQUAL)) {
             Token equals = previous();
             Expr value = assignment();
 
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable) expr).name;
+//                System.out.println(name);
+//                System.out.println(((Expr.Binary) value).left);
+//                System.out.println(((Expr.Binary) value).operator);
+//                System.out.println(((Expr.Binary) value).right);
                 return new Expr.Assign(name, value);
             }
 
@@ -440,7 +453,7 @@ public class Parser {
 
             // If we are at the start of a statement
             switch (peek().type) {
-                case CLASS, FUN, VAR, FOR, IF, WHILE, PRINT, RETURN:
+                case CLASS, FUN, VAR, FOR, IF, WHILE, RETURN:
                     return;
             }
             advance();

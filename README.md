@@ -61,7 +61,7 @@ Expression
   parameters    -> IDENTIFIER ( "," IDENTIFIER )* ;
   arguments     -> expression ( "," expression )* ;
   expression    -> assignment ;
-  assignment    -> IDENTIFIER "=" assignment | logic_or ;
+  assignment    -> logic_or | IDENTIFIER "=" assignment ;
   logic_or      -> logic_and ( "or" logic_and )* ;
   logic_and     -> equality ( "and" equality )* ;
   equality      -> comparison ( ( "!=" | "==" ) comparison )* ;
@@ -130,7 +130,7 @@ Expression
 * two options for bytecode
     * mini-compiler, compiles the bytecode into native code. the bytecode becomes an IR
     * Virtual machine, to simulate a CPU that can run your bytecode in runtime.
-        * If you write the VM in C you can compile the VM to different CPUs (C part of the book does this)
+        * If you write the VM in C, you can compile the VM to different CPUs (C part of the book does this)
 
 #### Runtime
 
@@ -177,8 +177,9 @@ Expression
 
 ### Challenges
 
-1. Python is not a regular language, since you cant use a regex to parse the grammer. python is indent sensetive and
-   you need to know level of indention which you cant do with regex.
+1. Python is not a regular language, since you cant use a regex to parse the grammar.
+   python is indent sensitive, and
+   you need to know the level of indention which you cant do with regex.
 2. TODO
 3. Python needs to know the white space to know what scope its in.
    Comments might be used to create better debugging, can be used to create documention (javaDoc)

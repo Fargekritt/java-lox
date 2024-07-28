@@ -42,6 +42,24 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 return "<native fn>";
             }
         });
+
+        globals.define("print", new LoxCallable() {
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                System.out.println(arguments.getFirst().toString());
+                return null;
+            }
+
+            @Override
+            public String toString(){
+                return "<native fn>";
+            }
+        });
         try {
             for (Stmt statement : statements) {
                 execute(statement);
@@ -164,9 +182,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitFunctionExpr(Expr.Function expr) {
-        LoxFunction function = new LoxFunction(null, expr, environment);
-        return function;
-//        return null;
+        return new LoxFunction(null, expr, environment);
+
     }
 
     @Override
@@ -281,12 +298,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
 
-    @Override
-    public Void visitPrintStmt(Stmt.Print stmt) {
-        Object value = evaluate(stmt.expression);
-        System.out.println(stringify(value));
-        return null;
-    }
 
     @Override
     public Void visitBreakStmt(Stmt.Break stmt) {
