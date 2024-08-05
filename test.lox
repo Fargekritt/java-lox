@@ -1,6 +1,4 @@
-fun hei(name){
-    print("heisann " + name);
-    var b = 2;
+var a = 2;
+{
+var a = a;
 }
-var a = "fredrik";
-hei(a);

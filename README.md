@@ -408,3 +408,54 @@ Function statement:
 
 
 
+
+### Chapter 11
+
+#### Static scope
+Lox uses lexical scopes
+* a variable is used based on the closet scope first.
+
+```` Lox
+var a = "global";
+{
+  fun showA() {
+    print a;
+  }
+
+  showA();
+  var a = "block";
+  showA();
+}
+````
+prints global then block should be global twice.
+
+
+##### Issue
+* We create variable in the global environment, 
+* We then create a new block
+* We create a function in this new block which gets the new block as a closure
+* When we then create a new var a in the block that is also used for the closure the function will use that instead
+since it checks innermost env first
+
+##### Possible solutions
+* Closure is a copy of the env at the time of creation
+* Closure is a "smart" block that only has the needed variables for the function?
+* Use a linked list? and the closure knows how "deep" it can go?
+
+
+#### Semantic analysis
+We could analyze the code to find out which variable the usage refers to.
+We don't have to do it each time it's used. 
+Only once.
+
+We can find which variable it should use based on how many hops it should do.
+Where do we put this code? 
+In the parser, since its part of the source code and not something that changes during runtime.
+
+##### Variable resolution pass
+* There will be no side effect
+* No control flow
+
+##### Challange chapter 11
+1. We have to define the function name before we run over the body to let the function refer to itself.
+2. 
