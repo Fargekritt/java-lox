@@ -2,13 +2,13 @@ package no.fargekritt.lox;
 
 public class Token {
     // Token types
-    final TokenType type;
+    public final TokenType type;
     // Name of the token
-    final String lexeme;
+    public final String lexeme;
     //
-    final Object literal;
+    public final Object literal;
     // Line in the source code
-    final int line;
+    public final int line;
 
 
     public Token(TokenType type, String lexeme, Object literal, int line) {

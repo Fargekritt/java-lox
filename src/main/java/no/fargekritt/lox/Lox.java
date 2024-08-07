@@ -13,10 +13,12 @@ import java.util.List;
 public class Lox {
     private static final Interpreter interpreter = new Interpreter();
 
+
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
 
     public static void main(String[] args) throws IOException {
+
         if (args.length > 1) {
             System.out.println("Usage jlox [script]");
             System.exit(64);
@@ -74,12 +76,24 @@ public class Lox {
         report(line, "", message);
     }
 
+    public static void warn(Token token, String message){
+        if(token.type == TokenType.EOF) {
+            reportWarn(token.line, " at end", message);
+        } else {
+            reportWarn(token.line, " at '" + token.lexeme + "'", message);
+        }
+    }
+
     public static void report(int line, String where, String message) {
         System.err.println("[Line " + line + " ] Error " + where + ": " + message);
         hadError = true;
     }
 
-    static void error(Token token, String message){
+    public static void reportWarn(int line, String where, String message) {
+        System.err.println("[Line " + line + " ] Warning " + where + ": " + message);
+    }
+
+    public static void error(Token token, String message){
         if(token.type == TokenType.EOF) {
             report(token.line, " at end", message);
         } else {

@@ -1,4 +1,5 @@
-var a = 2;
 {
-var a = a;
+    var a = 2;
+    var b = 3;
+    print(a);
 }

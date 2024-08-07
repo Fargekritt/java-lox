@@ -76,7 +76,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         stmt.accept(this);
     }
 
-    void resolve(Expr expr, int depth){
+    public void resolve(Expr expr, int depth){
         locals.put(expr, depth);
     }
 
