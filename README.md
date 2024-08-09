@@ -39,7 +39,8 @@ Statement
 
 ```BNF
   program       -> statement* EOF ;
-  declaration   -> funDecl | varDecl | statement ;
+  declaration   -> classDecl | funDecl | varDecl | statement ;
+  classDecl     -> "class" IDENTIFIER "{" function* "}" ;
   statement     -> exprStmt | ifStmt | whileStmt | forStmt | printStmt | block | returnStmt ;
   returnStmt    -> "return" expression? ";" ;
   forStmt       -> "for" "(" ( varDecl | exprStmt | ";" ) 
@@ -61,7 +62,7 @@ Expression
   parameters    -> IDENTIFIER ( "," IDENTIFIER )* ;
   arguments     -> expression ( "," expression )* ;
   expression    -> assignment ;
-  assignment    -> logic_or | IDENTIFIER "=" assignment ;
+  assignment    -> logic_or | ( call "." )? IDENTIFIER "=" assignment ;
   logic_or      -> logic_and ( "or" logic_and )* ;
   logic_and     -> equality ( "and" equality )* ;
   equality      -> comparison ( ( "!=" | "==" ) comparison )* ;
@@ -69,7 +70,7 @@ Expression
   term          -> factor ( ( "-" | "+" ) factor )* ;
   factor        -> unary ( ( "/" | "*" ) unary )* ;
   unary         -> ( "!" | "-" ) unary | call ;
-  call          -> primary ( "(" arguments? ")" ) ;
+  call          -> primary ( "(" arguments? ")"  | "." IDENTIFIER )* ;
   primary       -> NUMBER | STRING
                  | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ; 
 ```
@@ -458,4 +459,12 @@ In the parser, since its part of the source code and not something that changes 
 
 ##### Challange chapter 11
 1. We have to define the function name before we run over the body to let the function refer to itself.
-2. 
+
+
+#### Chapter 12 OOP and classes
+There are three main paths to oop: Classes, Prototypes, and multimethods.
+Lox will be using classes, it's the first and the most popular one.
+JavaScript and lua use prototypes.
+
+
+

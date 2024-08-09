@@ -6,10 +6,20 @@ import java.util.Map;
 import java.util.Stack;
 
 public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
+    private enum FunctionType {
+        NONE, METHOD, FUNCTION, INITIALIZER
+    }
+
+    private enum ClassType {
+        NONE, CLASS
+    }
+
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 
+
     private FunctionType currentFunction = FunctionType.NONE;
+    private ClassType currentClass = ClassType.NONE;
     private boolean inLoop = false;
 
     public Resolver(Interpreter interpreter) {
@@ -42,7 +52,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         if (scopes.isEmpty()) return;
 
         Map<String, Boolean> scope = scopes.peek();
-        if(scope.containsKey(name.lexeme)) {
+        if (scope.containsKey(name.lexeme)) {
             Lox.error(name, "Already a variable with this name in the scope");
         }
         scope.put(name.lexeme, false);
@@ -53,17 +63,17 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         scopes.peek().put(name.lexeme, true);
     }
 
-    private void resolveLocal(Expr expr, Token name){
-        for (int i = scopes.size() - 1; i >= 0; i--){
-           if (scopes.get(i).containsKey(name.lexeme)) {
-               int jumps = scopes.size() - 1 - i;
-               interpreter.resolve(expr, jumps);
-               return;
-           }
+    private void resolveLocal(Expr expr, Token name) {
+        for (int i = scopes.size() - 1; i >= 0; i--) {
+            if (scopes.get(i).containsKey(name.lexeme)) {
+                int jumps = scopes.size() - 1 - i;
+                interpreter.resolve(expr, jumps);
+                return;
+            }
         }
     }
 
-    private void resolveFunction(Stmt.Function function, FunctionType type){
+    private void resolveFunction(Stmt.Function function, FunctionType type) {
         FunctionType enclosingFunction = currentFunction;
         currentFunction = type;
 
@@ -104,6 +114,12 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitGetExpr(Expr.Get expr) {
+        resolve(expr.object);
+        return null;
+    }
+
+    @Override
     public Void visitGroupingExpr(Expr.Grouping expr) {
         resolve(expr.expression);
         return null;
@@ -128,6 +144,23 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitSetExpr(Expr.Set expr) {
+        resolve(expr.object);
+        resolve(expr.value);
+        return null;
+    }
+
+    @Override
+    public Void visitThisExpr(Expr.This expr) {
+        if (currentClass == ClassType.NONE) {
+            Lox.error(expr.keyword, "Can't use 'this' outside of a class.");
+            return null;
+        }
+        resolveLocal(expr, expr.keyword);
+        return null;
+    }
+
+    @Override
     public Void visitUnaryExpr(Expr.Unary expr) {
         resolve(expr.right);
         return null;
@@ -148,6 +181,26 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         beginScope();
         resolve(stmt.statements);
         endScope();
+        return null;
+    }
+
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt) {
+        ClassType enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
+        declare(stmt.name);
+        define(stmt.name);
+
+        beginScope();
+        scopes.peek().put("this", true);
+
+        for (Stmt.Function method : stmt.methods) {
+            FunctionType declaration = method.name.lexeme.equals(
+                    "init") ? FunctionType.INITIALIZER : FunctionType.METHOD;
+            resolveFunction(method, declaration);
+        }
+        endScope();
+        currentClass = enclosingClass;
         return null;
     }
 
@@ -182,10 +235,14 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
-        if (currentFunction == FunctionType.NONE){
+        if (currentFunction == FunctionType.NONE) {
             Lox.error(stmt.keyword, "Can't return from top-level code.");
         }
+
         if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER) {
+                Lox.error(stmt.keyword, "Can't return from an initializer.");
+            }
             resolve(stmt.value);
         }
         return null;

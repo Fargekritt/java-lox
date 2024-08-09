@@ -1,4 +1,17 @@
-var a = 2;
-{
-var a = a;
+class Bacon {
+  init(a) {
+    this.b = a;
+  }
+  eat() {
+    print ("Crunch crunch crunch!");
+  }
+  hello() {
+    print( this.b);
+  }
 }
+
+Bacon(2).eat();
+var a = Bacon(10);
+a.eat();
+a.hello();
+Bacon(200).hello();
